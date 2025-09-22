@@ -6,14 +6,14 @@ Descrição do projeto:
 Especificações:
 
   Ferramentas utilizadas:
-    Visual Studio Code
-    GitHub
-    MySQL Workbench
-    Expo.dev
+    Visual Studio Code,
+    GitHub,
+    MySQL Workbench,
+    Expo.dev.
   
   Linguagens Utilizadas:
-    HTML
-    CSS
-    Java Script
-    React Native
-    SQL
+    HTML,
+    CSS,
+    Java Script,
+    React Native,
+    SQL.
