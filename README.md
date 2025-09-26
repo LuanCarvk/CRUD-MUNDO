@@ -9,10 +9,11 @@ Especificações:
     Visual Studio Code,
     GitHub,
     MySQL Workbench,
+    HTML,
     Expo.dev.
   
   Linguagens Utilizadas:
-    HTML,
+    PHP,
     CSS,
     Java Script,
     React Native,
