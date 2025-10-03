@@ -10,6 +10,7 @@ $paises = [];
 while ($pais = $res_paises->fetch_assoc()) {
     $id_pais = $pais["id_pais"];
     
+    // Obtendo cidades para cada país
     $sql_cidades = "SELECT * FROM cidades WHERE pais_id = $id_pais";
     $res_cidades = $con->query($sql_cidades);
     

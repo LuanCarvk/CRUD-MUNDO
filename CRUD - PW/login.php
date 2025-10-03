@@ -37,6 +37,5 @@ if (isset($_POST["usuario"]) && isset($_POST["senha"])) {
 	<?php if (isset($erro))
 		echo "<p style='color:red;'>" . htmlspecialchars($erro) . "</p>"; ?>
 	<br>
-	<a href="index.php">Acessar como cliente</a>
 </main>
 <?php include('includes/footer.php'); ?>

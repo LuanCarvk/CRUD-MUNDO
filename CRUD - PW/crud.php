@@ -22,24 +22,7 @@ if ($acao == "c") {
             $_SESSION["aviso"] = "Erro ao cadastrar: " . $con->error;
         }
     }
-    header("Location: admin.php");
-    exit;
-}
-
-// READ
-if ($acao == "r") {
-    if (!empty($id_pais)) {
-        $sql = "SELECT * FROM paises WHERE id_pais='$id_pais'";
-        $res = $con->query($sql);
-        if ($res && $res->num_rows > 0) {
-            $_SESSION["resultado_consulta"] = $res->fetch_assoc();
-        } else {
-            $_SESSION["aviso"] = "Nenhum país encontrado com esse ID.";
-        }
-    } else {
-        $_SESSION["aviso"] = "Informe o ID do país para consultar.";
-    }
-    header("Location: admin.php");
+    header("Location: " . $_SERVER['HTTP_REFERER']);
     exit;
 }
 
@@ -54,7 +37,7 @@ if ($acao == "u") {
         $res = $con->query($sql);
         $_SESSION["aviso"] = "País atualizado com sucesso!";
     }
-    header("Location: admin.php");
+    header("Location: " . $_SERVER['HTTP_REFERER']);
     exit;
 }
 
@@ -67,8 +50,34 @@ if ($acao == "d") {
     } else {
         $_SESSION["aviso"] = "ID do país não informado para exclusão.";
     }
-    header("Location: admin.php");
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit;
+}
+
+// READ (Consultar)
+if ($acao == "r") {
+    if (!empty($id_pais)) {
+        // Buscar o país no banco
+        $sql = "SELECT * FROM paises WHERE id_pais='$id_pais'";
+        $res = $con->query($sql);
+        
+        if ($res && $res->num_rows > 0) {
+            $pais = $res->fetch_assoc();
+            // Preenche os campos do formulário com as informações do país encontrado
+            $nome = $pais["nome"];
+            $continente = $pais["continente"];
+            $populacao = $pais["populacao"];
+            $idioma = $pais["idioma"];
+            $_SESSION["aviso"] = "País encontrado!";
+        } else {
+            $_SESSION["aviso"] = "País não encontrado!";
+        }
+    } else {
+        $_SESSION["aviso"] = "ID do país não fornecido!";
+    }
+    header("Location: " . $_SERVER['HTTP_REFERER']);
     exit;
 }
 
 $con->close();
+?>
