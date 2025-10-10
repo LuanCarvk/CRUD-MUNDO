@@ -39,8 +39,8 @@ $con->close();
     <!-- Header -->
     <?php include('includes/header.php'); ?>
 
+    <h1 style="padding-top: 5%;">Explorar Países e Cidades</h1>
     <main>
-        <h1>Explorar Países e Cidades</h1>
 
         <?php if (isset($_SESSION["aviso"])): ?>
             <p><?php echo $_SESSION["aviso"]; unset($_SESSION["aviso"]); ?></p>
@@ -77,8 +77,6 @@ $con->close();
         <?php endif; ?>
 
     </main>
-
-    <a href="login.php" style="align-self: center; padding-bottom: 50px;">Área do Administrador</a>
     
     <!-- Footer -->
     <?php include('includes/footer.php'); ?>

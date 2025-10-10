@@ -1,4 +1,4 @@
-<!-- includes/header.php -->
+<!-- includes/header_adm.php -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -13,5 +13,6 @@
 <body>
   <header>
         <a href="index.php">Home</a>
-        <a href="login.php">Área do Administrador</a>
+        <a href="cidades.php">Gerenciar Cidades</a>
+        <a href="admin.php">Gerenciar Países</a>
   </header>

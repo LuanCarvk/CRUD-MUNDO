@@ -9,114 +9,175 @@ if (!isset($_SESSION["adm"])) {
 
 $destacarPais = null;
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['acao']) && $_POST['acao'] == 'r') {
-    $id_pais = $_POST['id_pais'] ?? null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $acao = $_POST['acao'] ?? '';
+    $id_pais = $_POST['id_pais'] ?? '';
+    $nome = trim($_POST['nome'] ?? '');
+    $continente = trim($_POST['continente'] ?? '');
+    $populacao = $_POST['populacao'] ?? '';
+    $idioma = trim($_POST['idioma'] ?? '');
 
-    // Consulta por ID do país
-    if ($id_pais) {
-        $sql = "SELECT * FROM paises WHERE id_pais = '$id_pais'";
-        $res = $con->query($sql);
+    switch ($acao) {
+        case 'c': // CREATE
+            if (empty($nome) || empty($continente) || empty($populacao) || empty($idioma)) {
+                $_SESSION["aviso"] = "Todos os campos devem ser preenchidos!";
+            } else {
+                $stmt = $con->prepare("INSERT INTO paises (nome, continente, populacao, idioma) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssis", $nome, $continente, $populacao, $idioma);
 
-        if ($res && $res->num_rows > 0) {
-            // Encontrou o país, armazenamos o país para destacar
-            $destacarPais = $res->fetch_assoc();
-        } else {
-            $_SESSION["aviso"] = "País não encontrado!";
-        }
+                if ($stmt->execute()) {
+                    $_SESSION["aviso"] = "País cadastrado com sucesso!";
+                } else {
+                    $_SESSION["aviso"] = "Erro ao cadastrar país: " . $stmt->error;
+                }
+                $stmt->close();
+            }
+            header("Location: admin.php");
+            exit();
+
+        case 'u': // UPDATE
+            if (empty($id_pais) || empty($nome) || empty($continente) || empty($populacao) || empty($idioma)) {
+                $_SESSION["aviso"] = "Todos os campos devem ser preenchidos!";
+            } else {
+                $stmt = $con->prepare("UPDATE paises SET nome=?, continente=?, populacao=?, idioma=? WHERE id_pais=?");
+                $stmt->bind_param("ssisi", $nome, $continente, $populacao, $idioma, $id_pais);
+
+                if ($stmt->execute()) {
+                    $_SESSION["aviso"] = "País atualizado com sucesso!";
+                } else {
+                    $_SESSION["aviso"] = "Erro ao atualizar país: " . $stmt->error;
+                }
+                $stmt->close();
+            }
+            header("Location: admin.php");
+            exit();
+
+        case 'd': // DELETE
+            if (!empty($id_pais)) {
+                $check = $con->prepare("SELECT COUNT(*) FROM cidades WHERE pais_id = ?");
+                $check->bind_param("i", $id_pais);
+                $check->execute();
+                $check->bind_result($qtd);
+                $check->fetch();
+                $check->close();
+
+                if ($qtd > 0) {
+                    $_SESSION["aviso"] = "Não é possível excluir. Existem $qtd cidade(s) vinculada(s) a este país.";
+                } else {
+                    $stmt = $con->prepare("DELETE FROM paises WHERE id_pais = ?");
+                    $stmt->bind_param("i", $id_pais);
+                    if ($stmt->execute()) {
+                        $_SESSION["aviso"] = "País excluído com sucesso.";
+                    } else {
+                        $_SESSION["aviso"] = "Erro ao excluir país: " . $stmt->error;
+                    }
+                    $stmt->close();
+                }
+            } else {
+                $_SESSION["aviso"] = "ID do país não informado para exclusão.";
+            }
+            header("Location: admin.php");
+            exit();
+
+        case 'r': // READ
+            if (!empty($id_pais)) {
+                $stmt = $con->prepare("SELECT * FROM paises WHERE id_pais = ?");
+                $stmt->bind_param("i", $id_pais);
+                $stmt->execute();
+                $res = $stmt->get_result();
+
+                if ($res && $res->num_rows > 0) {
+                    $destacarPais = $res->fetch_assoc();
+                    $_SESSION["aviso"] = "País encontrado!";
+                } else {
+                    $_SESSION["aviso"] = "País não encontrado!";
+                }
+                $stmt->close();
+            } else {
+                $_SESSION["aviso"] = "ID do país não fornecido!";
+            }
+            break;
     }
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Administrador</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!-- Cabeçalho -->
-    <?php include('includes/header.php'); ?>
+<?php include('includes/header_adm.php'); ?>
 
-    <main>
-        <h1>Painel do Administrador</h1>
+<main>
+    <h1>Painel do Administrador</h1>
 
-        <?php
-        if (isset($_SESSION["aviso"])) {
-            echo "<p>" . $_SESSION["aviso"] . "</p>";
-            unset($_SESSION["aviso"]);
-        }
-        ?>
-
-        <div class="admin-container">
-            <div class="form-container">
-                <h2>Gerenciar Países</h2>
-                <form name="f" id="f" method="post" action="admin.php">
-
-                    <input type="number" name="id_pais" placeholder="ID do País" required><br>
-
-                    <input type="text" name="nome" placeholder="Nome do País" required><br>
-                    <input type="text" name="continente" placeholder="Continente" required><br>
-                    <input type="number" name="populacao" placeholder="População" required><br>
-                    <input type="text" name="idioma" placeholder="Idioma" required><br>
-
-                    <input type="hidden" name="acao" id="acao"><br>
-
-                    <input type="button" value="Criar" onclick="submeterForm('c')">
-                    <input type="button" value="Consultar" onclick="submeterForm('r')">
-                    <input type="button" value="Atualizar" onclick="submeterForm('u')">
-                    <input type="button" value="Deletar" onclick="submeterForm('d')">
-                </form>
-            </div>
-
-            <!-- Exibição dos países cadastrados -->
-            <div class="table-container">
-                <h2>Países Cadastrados</h2>
-                <?php
-                // Consulta para exibir todos os países cadastrados
-                $sql = "SELECT * FROM paises";
-                $res = $con->query($sql);
-
-                if ($res && $res->num_rows > 0) {
-                    echo "<table>";
-                    echo "<tr><th>ID</th><th>Nome</th><th>Continente</th><th>População</th><th>Idioma</th></tr>";
-                    while ($campo = $res->fetch_assoc()) {
-                        // Verificar se o país é o que foi encontrado
-                        $isHighlighted = ($destacarPais && $campo['id_pais'] == $destacarPais['id_pais']) ? 'class="highlight"' : '';
-                        
-                        echo "<tr $isHighlighted>";
-                        echo "<td>{$campo['id_pais']}</td>";
-                        echo "<td>{$campo['nome']}</td>";
-                        echo "<td>{$campo['continente']}</td>";
-                        echo "<td>" . number_format($campo['populacao']) . "</td>";
-                        echo "<td>{$campo['idioma']}</td>";
-                        echo "</tr>";
-                    }
-                    echo "</table>";
-                } else {
-                    echo "<p>Nenhum país encontrado.</p>";
-                }
-                ?>
-            </div>
+    <div class="admin-container">
+        <div class="form-container">
+            <h2>Gerenciar Países</h2>
+            <form id="f" method="post" action="admin.php">
+                <input type="number" name="id_pais" placeholder="ID do País" required><br>
+                <input type="text" name="nome" placeholder="Nome do País" required><br>
+                <input type="text" name="continente" placeholder="Continente" required><br>
+                <input type="number" name="populacao" placeholder="População" required><br>
+                <input type="text" name="idioma" placeholder="Idioma" required><br>
+                <input type="hidden" name="acao" id="acao"><br>
+                <input type="button" value="Criar" onclick="submeterForm('c')">
+                <input type="button" value="Consultar" onclick="submeterForm('r')">
+                <input type="button" value="Atualizar" onclick="submeterForm('u')">
+                <input type="button" value="Deletar" onclick="submeterForm('d')">
+            </form>
         </div>
 
-        <br>
-        <a href="index.php">Voltar</a>
-    </main>
+        <div class="table-container">
+            <h2>Países Cadastrados</h2>
+            <?php
+            $res = $con->query("SELECT * FROM paises");
 
-    <footer>
-        Loja Virtual - Desenvolvido por Luan Carvalho
-    </footer>
+            if ($res && $res->num_rows > 0) {
+                echo "<table>";
 
-    <script>
-        function submeterForm(acao) {
-            document.getElementById('acao').value = acao;
-            document.getElementById('f').submit();
-        }
-    </script>
+                if (isset($_SESSION["aviso"])) {
+                    echo "<p>" . $_SESSION["aviso"] . "</p>";
+                    unset($_SESSION["aviso"]);
+                }
+
+                echo "<tr><th>ID</th><th>Nome</th><th>Continente</th><th>População</th><th>Idioma</th></tr>";
+                while ($campo = $res->fetch_assoc()) {
+                    $highlight = ($destacarPais && $campo['id_pais'] == $destacarPais['id_pais']) ? 'class="highlight"' : '';
+                    echo "<tr $highlight>";
+                    echo "<td>{$campo['id_pais']}</td>";
+                    echo "<td>{$campo['nome']}</td>";
+                    echo "<td>{$campo['continente']}</td>";
+                    echo "<td>" . number_format($campo['populacao']) . "</td>";
+                    echo "<td>{$campo['idioma']}</td>";
+                    echo "</tr>";
+                }
+                echo "</table>";
+            } else {
+                echo "<p>Nenhum país encontrado.</p>";
+            }
+            ?>
+        </div>
+    </div>
+
+    <br>
+    <a href="index.php">Voltar</a>
+</main>
+
+<footer>
+    Loja Virtual - Desenvolvido por Luan Carvalho
+</footer>
+
+<script>
+    function submeterForm(acao) {
+        document.getElementById('acao').value = acao;
+        document.getElementById('f').submit();
+    }
+</script>
 
 </body>
 </html>

@@ -27,7 +27,7 @@ if (isset($_POST["usuario"]) && isset($_POST["senha"])) {
 ?>
 
 <?php include('includes/header.php'); ?>
-<main>
+<main style="display: grid;">
 	<h2>Login - Administrador</h2>
 	<form method="POST" action="">
 		<input type="text" name="usuario" placeholder="Usuário" required><br>
