@@ -112,8 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include('includes/header_adm.php'); ?>
 
-<main>
-    <h1>Painel do Administrador</h1>
+<main_admin>
+    <h1>Painel de Países</h1>
 
     <div class="admin-container">
         <div class="form-container">
@@ -146,7 +146,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 echo "<tr><th>ID</th><th>Nome</th><th>Continente</th><th>População</th><th>Idioma</th></tr>";
+                // todos os resultados num array
+                $paises = [];
                 while ($campo = $res->fetch_assoc()) {
+                    $paises[] = $campo;
+                }
+                // se existe país a destacar, coloca ele no topo
+                if ($destacarPais) {
+                    foreach ($paises as $key => $pais) {
+                        if ($pais['id_pais'] == $destacarPais['id_pais']) {
+                            // remove da posição original
+                            unset($paises[$key]);
+                            // coloca no início
+                            array_unshift($paises, $pais);
+                            break;
+                        }
+                    }
+                }
+                // tabela
+                foreach ($paises as $campo) {
                     $highlight = ($destacarPais && $campo['id_pais'] == $destacarPais['id_pais']) ? 'class="highlight"' : '';
                     echo "<tr $highlight>";
                     echo "<td>{$campo['id_pais']}</td>";
@@ -165,12 +183,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <br>
-    <a href="index.php">Voltar</a>
-</main>
+    <a href="index.php" style="color: #26527e">Voltar</a>
+</main_admin>
 
-<footer>
-    Loja Virtual - Desenvolvido por Luan Carvalho
-</footer>
+    <!-- Footer -->
+    <?php include('includes/footer.php'); ?>
 
 <script>
     function submeterForm(acao) {

@@ -28,8 +28,22 @@ body {
 }
 
 /* conteúdo central */
-main {
+main_admin {
     display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 40px;
+    flex: 1;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+main {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
     justify-content: space-between;
     gap: 20px;
     margin-top: 40px;
@@ -68,28 +82,6 @@ h2 {
 
 .country-info strong {
     color: #34495e;
-}
-
-/* Tabela de países */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fafafa;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-th {
-    background-color: #1a3c5d;
-    color: white;
-    text-transform: uppercase;
-    font-size: 14px;
 }
 
 /* Inputs */
@@ -185,6 +177,7 @@ footer {
 
 /* CRUD */
 .form-container {
+    height: 600px;
     flex: 1;
     padding: 20px;
     border: 1px solid #ddd;
@@ -193,8 +186,11 @@ footer {
     background-color: #ffffff;
 }
 
-/* Tabela de países */
+/* Tabela de países e cidades */
 .table-container {
+    height: 600px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
     flex: 2;
     padding: 20px;
     border: 1px solid #ddd;

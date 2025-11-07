@@ -27,7 +27,7 @@ if (isset($_POST["usuario"]) && isset($_POST["senha"])) {
 ?>
 
 <?php include('includes/header.php'); ?>
-<main style="display: grid;">
+<main_admin style="display: grid;padding-top: 5%">
 	<h2>Login - Administrador</h2>
 	<form method="POST" action="">
 		<input type="text" name="usuario" placeholder="Usuário" required><br>
@@ -37,5 +37,7 @@ if (isset($_POST["usuario"]) && isset($_POST["senha"])) {
 	<?php if (isset($erro))
 		echo "<p style='color:red;'>" . htmlspecialchars($erro) . "</p>"; ?>
 	<br>
-</main>
+</main_admin>
+
+<!-- Footer -->
 <?php include('includes/footer.php'); ?>

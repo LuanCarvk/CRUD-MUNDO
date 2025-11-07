@@ -101,9 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
+<!-- header -->
 <?php include('includes/header_adm.php'); ?>
 
-<main>
+<main_admin>
     <h1>Painel de Cidades</h1>
 
     <div class="admin-container">
@@ -153,7 +154,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 echo "<tr><th>ID</th><th>Nome</th><th>População</th><th>País</th></tr>";
+                // todos os resultados em um array
+                $cidades = [];
                 while ($campo = $res->fetch_assoc()) {
+                    $cidades[] = $campo;
+                }
+                // Se existe cidade a destacar, move ela para o topo
+                if ($destacarCidade) {
+                    foreach ($cidades as $key => $cidade) {
+                        if ($cidade['id_cidade'] == $destacarCidade['id_cidade']) {
+                            // Remove da posição original
+                            unset($cidades[$key]);
+                            // Coloca no início do array
+                            array_unshift($cidades, $cidade);
+                            break;
+                        }
+                    }
+                }
+                // tabela
+                foreach ($cidades as $campo) {
                     $highlight = ($destacarCidade && $campo['id_cidade'] == $destacarCidade['id_cidade']) ? 'class="highlight"' : '';
                     echo "<tr $highlight>";
                     echo "<td>{$campo['id_cidade']}</td>";
@@ -171,12 +190,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <br>
-    <a href="admin.php">Voltar</a>
-</main>
+    <a href="admin.php" style="color: #26527e">Voltar</a>
+</main_admin>
 
-<footer>
-    Loja Virtual - Desenvolvido por Luan Carvalho
-</footer>
+    <!-- Footer -->
+    <?php include('includes/footer.php'); ?>
 
 <script>
     function submeterForm(acao) {
