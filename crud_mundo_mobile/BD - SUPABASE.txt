@@ -1,0 +1,58 @@
+-- Apaga tudo se já existir
+drop table if exists cidades;
+drop table if exists paises;
+drop table if exists administradores;
+
+-- Tabela paises
+create table paises (
+  id_pais bigint generated always as identity primary key,
+  nome text unique not null,
+  continente text not null,
+  populacao bigint not null,
+  idioma text not null,
+  latitude decimal(10,6),
+  longitude decimal(10,6)
+);
+
+-- Tabela cidades
+create table cidades (
+  id_cidade bigint generated always as identity primary key,
+  nome text unique not null,
+  populacao bigint not null,
+  pais_id bigint references paises(id_pais) on delete cascade
+);
+
+-- Tabela administradores
+create table administradores (
+  id bigint generated always as identity primary key,
+  usuario text unique not null,
+  senha text not null
+);
+
+-- Inserir administrador (hash bcrypt permanece o mesmo)
+insert into administradores (usuario, senha) values
+('admin', '$2y$10$V02AVAXl9Wa2QE3XY2jW3.aNvG8gKC8RBKY6ZDuH82m2naBgBa4lq');
+
+-- Inserir países
+insert into paises (nome, continente, populacao, idioma, latitude, longitude) values
+('Brasil', 'América do Sul', 215000000, 'Português', -14.235004, -51.925280),
+('Estados Unidos', 'América do Norte', 331000000, 'Inglês', 37.090240, -95.712891),
+('Japão', 'Ásia', 125800000, 'Japonês', 36.204824, 138.252924),
+('Alemanha', 'Europa', 83200000, 'Alemão', 51.165691, 10.451526),
+('Nigéria', 'África', 206000000, 'Inglês', 9.082000, 8.675277);
+
+-- Inserir cidades
+insert into cidades (nome, populacao, pais_id) values
+('São Paulo', 12300000, 1),
+('Rio de Janeiro', 6748000, 1),
+('New York', 8419000, 2),
+('Los Angeles', 3980000, 2),
+('Tóquio', 13960000, 3),
+('Osaka', 2715000, 3),
+('Berlim', 3769000, 4),
+('Hamburgo', 1841000, 4),
+('Lagos', 14000000, 5),
+('Abuja', 1236000, 5);
+
+-- Teste
+select * from cidades;
